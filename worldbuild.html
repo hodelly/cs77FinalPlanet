@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>CS77 Procedural Planet Generator</title>
+  <style>
+    body { margin: 0; }
+		canvas { width: 100%; height: 100% }
+	</style>
+</head>
+<body>
+
+  <script src="three.js-master/build/three.min.js"></script>
+  <script src="js/vector.js"></script>
+  <script src="js/makeSphere.js"></script>
+
+  <script>
+
+  var scene, camera, renderer;
+
+  scene = new THREE.Scene();
+  // (FOV, aspect, near clipping, far clipping)
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild( renderer.domElement );
+
+  // Add objects here
+
+  var aLight = new THREE.AmbientLight(0x550000);
+  scene.add(aLight);
+
+  var pLight = new THREE.PointLight(0x00ffff, 1, 0, 2);
+  pLight.position.set(50, 50, 50);
+  scene.add(pLight);
+
+  var geometry = new THREE.Geometry();
+  // getSphere(surface divisions, radius of sphere);
+  var sphere = getSphere(4,2);
+  for(var i = 0; i < sphere.vertices.length; i++){
+    geometry.vertices.push(
+      new THREE.Vector3(sphere.vertices[i].x, sphere.vertices[i].y, sphere.vertices[i].z)
+    );
+  }
+  for (var i = 0; i < sphere.faces.length; i++){
+    geometry.faces.push(
+      new THREE.Face3(sphere.faces[i][0], sphere.faces[i][1], sphere.faces[i][2])
+    );
+  }  geometry.computeBoundingSphere();
+  geometry.computeFaceNormals();
+  var material = new THREE.MeshPhongMaterial({color: 0xff00ff});
+  var mesh = new THREE.Mesh(geometry, material);
+  scene.add(mesh);
+
+  camera.position.z = 5;
+
+
+  function animate(){
+    requestAnimationFrame(animate);
+    mesh.rotation.x += .005;
+    mesh.rotation.y += .005;
+    renderer.render(scene, camera);
+  };
+
+  animate();
+
+  </script>
+
+</body>
+</head>
