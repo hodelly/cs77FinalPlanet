@@ -4,17 +4,45 @@
   <meta charset="utf-8">
   <title>CS77 Procedural Planet Generator</title>
   <style>
-    body { margin: 0; }
-		canvas { width: 100%; height: 100% }
+    body { 
+      margin: 0; 
+      background-image: url(http://astrobob.areavoices.com/files/2011/09/Twinkling-stars.gif); 
+    }
+		canvas { width: 100%; height: 100%;
+    background: transparent; }
+    button {
+      background-color:white;
+      font-size: 30px;
+      border-radius:50%;
+      height: 40px;
+      width:40px;
+      margin:10px;
+    }
+    button:focus {
+      outline: none;
+    }
+    #buttons{
+      position: absolute;
+      right:10px;
+      top:10px;
+      display: flex;
+      flex-direction: column;
+    }
 	</style>
 </head>
 <body>
-
+  <div id="buttons">
+    <button type="button" class="zoom_b" onclick="zoomModel(true, 1.5)">+</button>
+    <button type="button" class="zoom_b" onclick="zoomModel(false, 1.5)">-</button>
+  </div>
   <script src="three.js-master/build/three.min.js"></script>
   <script src="js/vector.js"></script>
   <script src="js/makeSphere.js"></script>
   <script src="js/editSurface.js"></script>
   <script src="js/controls.js"></script>
+  
+  
+
 
   <script>
 
@@ -33,7 +61,7 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild( renderer.domElement );
     controls = new THREE.controls(camera, renderer.domElement);
-
+  
     // Add objects here
 
     var aLight = new THREE.AmbientLight(0x555555);
@@ -75,9 +103,10 @@
     var waterSphere = getSphere(6, 2.07);
     var waterTexture = layeredNoise(waterSphere.vertices, .02, 1.5);
     renderMesh(waterTexture, waterSphere.faces, 0x00308b);
-
+    
+  
     camera.position.z = 5;
-
+    controls.update();
     // Takes a set of vertices and faces and formats them so three.js can render them
     function renderMesh(vertices, faces, color){
       var geometry = new THREE.Geometry();
@@ -103,7 +132,7 @@
   }
 
   
-  
+  // animate planet
   function animate(){
     requestAnimationFrame(animate);
     for(var i = 0; i < meshList.length; i++){
@@ -112,6 +141,15 @@
     }
     renderer.render(scene, camera);
   };
+  
+  // zooming in and out
+  function zoomModel(isZoomOut, scale) {
+    if(isZoomOut){
+        controls.zoomIn(scale);
+    }else{
+        controls.zoomOut(scale);
+    }
+  }
 
   </script>
 

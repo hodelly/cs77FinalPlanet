@@ -1,3 +1,5 @@
+// Used this three.js doc as a guide. We modified and added functions from here:
+// https://threejs.org/docs/#examples/controls/OrbitControls
 THREE.controls = function (object, domElement) {
 
     this.object = object;
@@ -16,15 +18,18 @@ THREE.controls = function (object, domElement) {
 
 	// This option actually enables dollying in and out; left as "zoom" for
 	// backwards compatibility
-	this.noZoom = false;
-	this.zoomSpeed = 1.0;
+	// this.noZoom = false;
+	// this.zoomSpeed = 1.0;
 	// // Limits to how far you can dolly in and out
 	this.minDistance = 0;
 	this.maxDistance = Infinity;
 
 	// Set to true to disable this control
 	this.noRotate = false;
-	this.rotateSpeed = 1.0;
+    this.rotateSpeed = 1.0;
+    // current position in spherical coordinates
+	var spherical = new THREE.Spherical();
+	var sphericalDelta = new THREE.Spherical();
 
 	// Set to true to automatically rotate around the target
 	this.autoRotate = false;
@@ -33,11 +38,10 @@ THREE.controls = function (object, domElement) {
 	// How far you can orbit vertically, upper and lower limits.
 	// Range is 0 to Math.PI radians.
 	this.minPolarAngle = 0; // radians
-	this.maxPolarAngle = Math.PI; // radians
-
-
-	////////////
-	// internals
+	this.maxPolarAngle = Infinity; // radians //Math.PI
+    
+    this.minZoom = 0;
+    this.maxZoom = Infinity;
 
 	var scope = this;
 
@@ -50,7 +54,6 @@ THREE.controls = function (object, domElement) {
 	var phiDelta = 0;
 	var thetaDelta = 0;
 	var scale = 1;
-	// var pan = new THREE.Vector3();
 
 	var lastPosition = new THREE.Vector3();
 
@@ -86,8 +89,57 @@ THREE.controls = function (object, domElement) {
 		phiDelta -= angle;
 
 	};
+    this.zoomIn = function ( s ) {
+        if ( scope.object.isPerspectiveCamera ) {
+			scale /= s;
 
+		} else if ( scope.object.isOrthographicCamera ) {
+			scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom * s ) );
+			scope.object.updateProjectionMatrix();
+			zoomChanged = true;
+		} else {
+			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+			scope.enableZoom = false;
 
+		}
+    };
+    this.zoomOut = function (s) {
+        if ( scope.object.isPerspectiveCamera ) {
+			scale *= s;
+
+		} else if ( scope.object.isOrthographicCamera ) {
+			scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / s ) );
+			scope.object.updateProjectionMatrix();
+			zoomChanged = true;
+
+		} else {
+			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+			scope.enableZoom = false;
+
+		}
+    };
+    // this.saveState = function () {
+
+	// 	scope.target0.copy( scope.target );
+	// 	scope.position0.copy( scope.object.position );
+	// 	scope.zoom0 = scope.object.zoom;
+
+	// };
+    // this.reset = function () {
+
+	// 	scope.target.copy( scope.target0 );
+	// 	scope.object.position.copy( scope.position0 );
+	// 	scope.object.zoom = scope.zoom0;
+
+	// 	scope.object.updateProjectionMatrix();
+	// 	scope.dispatchEvent( changeEvent );
+
+	// 	scope.update();
+
+	// 	state = STATE.NONE;
+
+    // };
+    
 	this.update = function () {
 
 		var position = this.object.position;
@@ -113,7 +165,7 @@ THREE.controls = function (object, domElement) {
 		// restrict phi to be between desired limits
 		phi = Math.max( this.minPolarAngle, Math.min( this.maxPolarAngle, phi ) );
 
-		// restrict phi to be betwee EPS and PI-EPS
+		// restrict phi to be between EPS and PI-EPS
 		phi = Math.max( EPS, Math.min( Math.PI - EPS, phi ) );
 
 		var radius = offset.length() * scale;
@@ -150,11 +202,7 @@ THREE.controls = function (object, domElement) {
 
 	}
 
-	function getZoomScale() {
-
-		return Math.pow( 0.95, scope.zoomSpeed );
-
-	}
+ 
 
 	function onMouseDown( event ) {
 
@@ -163,11 +211,8 @@ THREE.controls = function (object, domElement) {
 
 		if ( event.button === 0 ) {
 			if ( scope.noRotate === true ) { return; }
-
 			state = STATE.ROTATE;
-
 			rotateStart.set( event.clientX, event.clientY );
-
         } 
 
 		// Greggman fix: https://github.com/greggman/three.js/commit/fde9f9917d6d8381f06bf22cdff766029d1761be
@@ -217,7 +262,7 @@ THREE.controls = function (object, domElement) {
 
 	}
 
-	this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
+	// this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
 	this.domElement.addEventListener( 'mousedown', onMouseDown, false );
 
 };
