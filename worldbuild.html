@@ -32,6 +32,7 @@
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild( renderer.domElement );
+    controls = new THREE.controls(camera, renderer.domElement);
 
     // Add objects here
 
@@ -40,17 +41,23 @@
 
 
     var pLight = new THREE.PointLight(0xffffff, 1, 0, 2);
-    pLight.position.set(50, 50, 50);
+    pLight.position.set(0, 50, 0);
     scene.add(pLight);
     var pLight2 = new THREE.PointLight(0xffffff, 1, 0, 2);
-    pLight2.position.set(-50, -50, -50);
+    pLight2.position.set(0, -50, 0);
     scene.add(pLight2);
     var pLight3 = new THREE.PointLight(0xffffff, 1, 0, 2);
-    pLight3.position.set(-50, 50, -50);
+    pLight3.position.set(-50, 0, 0);
     scene.add(pLight3);
     var pLight4 = new THREE.PointLight(0xffffff, 1, 0, 2);
-    pLight4.position.set(50, -50, 50);
+    pLight4.position.set(50, 0, 0);
     scene.add(pLight4);
+    var pLight5 = new THREE.PointLight(0xffffff, 1, 0, 2);
+    pLight5.position.set(0, 0, 50);
+    scene.add(pLight5);
+    var pLight6 = new THREE.PointLight(0xffffff, 1, 0, 2);
+    pLight6.position.set(0, 0, -50);
+    scene.add(pLight6);
 
 
     // Planet Geometry
@@ -105,10 +112,6 @@
     }
     renderer.render(scene, camera);
   };
-
-  animate();
-  controls = new THREE.controls(camera, renderer.domElement);
-
 
   </script>
 
