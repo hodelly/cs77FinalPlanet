@@ -14,10 +14,11 @@
   <script src="js/vector.js"></script>
   <script src="js/makeSphere.js"></script>
   <script src="js/editSurface.js"></script>
+  <script src="js/controls.js"></script>
 
   <script>
 
-  var scene, camera, renderer;
+  var scene, camera, renderer, controls;
   var meshList = [];
 
   scene = new THREE.Scene();
@@ -36,7 +37,10 @@
   var pLight = new THREE.PointLight(0xffffff, 1, 0, 2);
   pLight.position.set(50, 50, 50);
   scene.add(pLight);
-
+  var pLight2 = new THREE.PointLight(0xffffff, 1, 0, 2);
+  pLight.position.set(-50, -50, -50);
+  scene.add(pLight2);
+ 
 
   // Planet Geometry
   var geometry = new THREE.Geometry();
@@ -50,7 +54,7 @@
 
   // Water construction
   console.log("Generating Water");
-  var waterSphere = getSphere(7, 2.08);
+  var waterSphere = getSphere(6, 2.08);
   var waterTexture = layeredNoise(waterSphere.vertices, .03, 1.5);
   renderMesh(waterTexture, waterSphere.faces, 0x00ffff);
 
@@ -76,7 +80,14 @@
     meshList.push(mesh);
   }
 
-
+  // // interactivity
+  // landSphere.addEventListener("click", function (event) {
+  // //   landSphere.addEventListener("click", function (event) {
+  //   console.log("here\n");
+  // //   })
+  // });
+  
+  
   function animate(){
     requestAnimationFrame(animate);
     for(var i = 0; i < meshList.length; i++){
@@ -87,6 +98,7 @@
   };
 
   animate();
+  controls = new THREE.controls(camera, renderer.domElement);
 
   </script>
 
