@@ -8,8 +8,7 @@
       margin: 0; 
       background-image: url(http://astrobob.areavoices.com/files/2011/09/Twinkling-stars.gif); 
     }
-		canvas { width: 100%; height: 100%;
-    background: transparent; }
+		canvas { width: 100%; height: 100%;}
     button {
       background-color:white;
       font-size: 30px;
@@ -56,20 +55,16 @@
     // (FOV, aspect, near clipping, far clipping)
     camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({alpha: true});
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild( renderer.domElement );
     controls = new THREE.controls(camera, renderer.domElement);
+    renderer.setClearColor( 0x000000, 0 ); // sets background clear
     renderer.autoClear = false;
-
-    var manager = new THREE.LoadingManager();
-    manager.onLoad = init;
-    var loader = new THREE.TextureLoader( manager );
 
     // Add objects here
     var aLight = new THREE.AmbientLight(0x555555);
     scene.add(aLight);
-
 
     var pLight = new THREE.PointLight(0xffffff, 1, 0, 2);
     pLight.position.set(0, 50, 0);
@@ -131,25 +126,10 @@
     }
     
   }
-  loader.load( 'Twinkling-stars.gif', function( texture ) {
-    var texture = THREE.ImageUtils.loadTexture( 'Twinkling-stars.gif' );
-    backgroundMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(2, 2, 0),
-        new THREE.MeshBasicMaterial({
-        map: texture
-      })
-    );
-  
-    backgroundMesh.material.depthTest = false;
-    backgroundMesh.material.depthWrite = false;
-  
-    backgroundScene = new THREE.Scene();
-    backgroundCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-    backgroundScene.add( backgroundCamera );
-    backgroundScene.add( backgroundMesh );
-  });
 
-    
+
+      // Load the background texture
+  
   // animate planet
   function animate(){
     requestAnimationFrame(animate);
@@ -158,8 +138,6 @@
       meshList[i].rotation.y += .003;
     }
     controls.update();
-    // renderer.clear();
-    // renderer.render( backgroundScene, backgroundCamera );
     renderer.render(scene, camera);
 
   };

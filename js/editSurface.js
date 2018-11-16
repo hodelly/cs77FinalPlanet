@@ -111,3 +111,5 @@ function layeredNoise(vertices, intensity, decay){
   //console.log(newVertices);
   return newVertices;
 }
+
+
