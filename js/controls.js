@@ -89,56 +89,28 @@ THREE.controls = function (object, domElement) {
 		phiDelta -= angle;
 
 	};
-    this.zoomIn = function ( s ) {
-        if ( scope.object.isPerspectiveCamera ) {
-			scale /= s;
 
-		} else if ( scope.object.isOrthographicCamera ) {
-			scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom * s ) );
-			scope.object.updateProjectionMatrix();
-			zoomChanged = true;
-		} else {
-			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
-			scope.enableZoom = false;
+    this.saveState = function () {
 
-		}
+		scope.target0.copy( scope.target );
+		scope.position0.copy( scope.object.position );
+		scope.zoom0 = scope.object.zoom;
+
+	};
+    this.reset = function () {
+
+		scope.target.copy( scope.target0 );
+		scope.object.position.copy( scope.position0 );
+		scope.object.zoom = scope.zoom0;
+
+		scope.object.updateProjectionMatrix();
+		scope.dispatchEvent( changeEvent );
+
+		scope.update();
+
+		state = STATE.NONE;
+
     };
-    this.zoomOut = function (s) {
-        if ( scope.object.isPerspectiveCamera ) {
-			scale *= s;
-
-		} else if ( scope.object.isOrthographicCamera ) {
-			scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / s ) );
-			scope.object.updateProjectionMatrix();
-			zoomChanged = true;
-
-		} else {
-			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
-			scope.enableZoom = false;
-
-		}
-    };
-    // this.saveState = function () {
-
-	// 	scope.target0.copy( scope.target );
-	// 	scope.position0.copy( scope.object.position );
-	// 	scope.zoom0 = scope.object.zoom;
-
-	// };
-    // this.reset = function () {
-
-	// 	scope.target.copy( scope.target0 );
-	// 	scope.object.position.copy( scope.position0 );
-	// 	scope.object.zoom = scope.zoom0;
-
-	// 	scope.object.updateProjectionMatrix();
-	// 	scope.dispatchEvent( changeEvent );
-
-	// 	scope.update();
-
-	// 	state = STATE.NONE;
-
-    // };
     
 	this.update = function () {
 
@@ -194,7 +166,34 @@ THREE.controls = function (object, domElement) {
 		}
 
 	};
+    this.zoomIn = function ( s ) {
+        if ( scope.object.isPerspectiveCamera ) {
+			scale /= s;
+		} else if ( scope.object.isOrthographicCamera ) {
+			scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom * s ) );
+			scope.object.updateProjectionMatrix();
+			zoomChanged = true;
+		} else {
+			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+			scope.enableZoom = false;
 
+		}
+    };
+    this.zoomOut = function (s) {
+        if ( scope.object.isPerspectiveCamera ) {
+            scale *= s;
+
+		} else if ( scope.object.isOrthographicCamera ) {
+			scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / s ) );
+			scope.object.updateProjectionMatrix();
+			zoomChanged = true;
+
+		} else {
+			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+			scope.enableZoom = false;
+
+		}
+    };
 
 	function getAutoRotationAngle() {
 

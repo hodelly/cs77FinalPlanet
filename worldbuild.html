@@ -32,8 +32,8 @@
 </head>
 <body>
   <div id="buttons">
-    <button type="button" class="zoom_b" onclick="zoomModel(true, 1.5)">+</button>
-    <button type="button" class="zoom_b" onclick="zoomModel(false, 1.5)">-</button>
+    <button type="button" class="zoom_b" onclick="zoomModel(true, 1.2)">+</button>
+    <button type="button" class="zoom_b" onclick="zoomModel(false, 1.2)">-</button>
   </div>
   <script src="three.js-master/build/three.min.js"></script>
   <script src="js/vector.js"></script>
@@ -46,11 +46,10 @@
 
   <script>
 
-  var scene, camera, renderer, controls;
+  var scene, camera, renderer, controls, backgroundMesh, backgroundScene, backgroundCamera;
   var meshList = [];
   init();
   animate();
- 
  
   function init(){
     scene = new THREE.Scene();
@@ -61,9 +60,13 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild( renderer.domElement );
     controls = new THREE.controls(camera, renderer.domElement);
-  
-    // Add objects here
+    renderer.autoClear = false;
 
+    var manager = new THREE.LoadingManager();
+    manager.onLoad = init;
+    var loader = new THREE.TextureLoader( manager );
+
+    // Add objects here
     var aLight = new THREE.AmbientLight(0x555555);
     scene.add(aLight);
 
@@ -103,10 +106,8 @@
     var waterSphere = getSphere(6, 2.07);
     var waterTexture = layeredNoise(waterSphere.vertices, .02, 1.5);
     renderMesh(waterTexture, waterSphere.faces, 0x00308b);
-    
   
     camera.position.z = 5;
-    controls.update();
     // Takes a set of vertices and faces and formats them so three.js can render them
     function renderMesh(vertices, faces, color){
       var geometry = new THREE.Geometry();
@@ -119,19 +120,36 @@
         geometry.faces.push(
           new THREE.Face3(faces[i][0], faces[i][1], faces[i][2])
         );
-      }  geometry.computeBoundingSphere();
+      }  
+      geometry.computeBoundingSphere();
       geometry.computeFaceNormals();
       var material = new THREE.MeshLambertMaterial({color: color});
-      //var material = new THREE.MeshBasicMaterial({color: color});
-      //var material = new THREE.MeshNormalMaterial();
       material.FlatShading = true;
       var mesh = new THREE.Mesh(geometry, material);
       scene.add(mesh);
       meshList.push(mesh);
     }
+    
   }
-
+  loader.load( 'Twinkling-stars.gif', function( texture ) {
+    var texture = THREE.ImageUtils.loadTexture( 'Twinkling-stars.gif' );
+    backgroundMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(2, 2, 0),
+        new THREE.MeshBasicMaterial({
+        map: texture
+      })
+    );
   
+    backgroundMesh.material.depthTest = false;
+    backgroundMesh.material.depthWrite = false;
+  
+    backgroundScene = new THREE.Scene();
+    backgroundCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    backgroundScene.add( backgroundCamera );
+    backgroundScene.add( backgroundMesh );
+  });
+
+    
   // animate planet
   function animate(){
     requestAnimationFrame(animate);
@@ -139,7 +157,11 @@
       meshList[i].rotation.x += .003;
       meshList[i].rotation.y += .003;
     }
+    controls.update();
+    // renderer.clear();
+    // renderer.render( backgroundScene, backgroundCamera );
     renderer.render(scene, camera);
+
   };
   
   // zooming in and out
