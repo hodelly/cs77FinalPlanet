@@ -4,12 +4,22 @@
   <meta charset="utf-8">
   <title>CS77 Procedural Planet Generator</title>
   <style>
-    body { 
-      margin: 0; 
-      background-image: url(http://astrobob.areavoices.com/files/2011/09/Twinkling-stars.gif); 
+    body {
+      margin: 0;
+      background-image: url(http://astrobob.areavoices.com/files/2011/09/Twinkling-stars.gif);
     }
 		canvas { width: 100%; height: 100%;}
-    button {
+    #newPlanet {
+      position: absolute;
+      left:5px;
+      top:5px;
+      display: flex;
+      flex-direction: column;
+    }
+    h2 {
+        color: white;
+    }
+    #zoomB {
       background-color:white;
       font-size: 30px;
       border-radius:50%;
@@ -27,12 +37,37 @@
       display: flex;
       flex-direction: column;
     }
+    input {
+      margin: 5px;
+      width: 100px;
+      color: white;
+    }
+    #newP {
+      width:100px;
+    }
+    p {
+      color:white;
+    }
+    .question {
+      display: flex;
+      flex-direction: row
+    }
 	</style>
 </head>
 <body>
+  <div id="newPlanet">
+    <h2>Make a new Planet!</h1>
+    <div class="question">
+      <p>1</p><input placeholder="radius" id="radius" type="range" min="1" max="5"/><p>5</p>
+    </div>
+    <div class="question">
+      <p>0</p><input placeholder="intensity of land topology" id="intensity" type="range" min="0" max=".5" step=".1"/><p>0.5</p>
+    </div>
+      <button id="newP" onclick="addPlanet()">create</button>
+  </div>
   <div id="buttons">
-    <button type="button" class="zoom_b" onclick="zoomModel(true, 1.2)">+</button>
-    <button type="button" class="zoom_b" onclick="zoomModel(false, 1.2)">-</button>
+    <button id="zoomB" type="button" class="zoom_b" onclick="zoomModel(true, 1.2)">+</button>
+    <button id="zoomB" type="button" class="zoom_b" onclick="zoomModel(false, 1.2)">-</button>
   </div>
   <script src="three.js-master/build/three.min.js"></script>
   <script src="js/vector.js"></script>
@@ -41,8 +76,8 @@
   <script src="js/controls.js"></script>
   <script src='js/gui.js'></script>
 
-  
-  
+
+
 
 
   <script>
@@ -51,7 +86,7 @@
   var meshList = [];
   init();
   animate();
- 
+
   function init(){
     scene = new THREE.Scene();
     // (FOV, aspect, near clipping, far clipping)
@@ -96,17 +131,19 @@
     console.log("Generating Land");
     var landSphere = getSphere(6,2);
     var landTexture = worleyNoise(layeredNoise(landSphere.vertices, .03, 1.3), .2, 300);
-    renderMesh(landTexture, landSphere.faces, 0xA0522D);
+    var landColor = getColor(0xA0522D, 0x999999, 2.1, 2.2, landTexture);
+    renderMesh(landTexture, landSphere.faces, landColor);
 
     // Water construction
     console.log("Generating Water");
     var waterSphere = getSphere(6, 2.07);
     var waterTexture = layeredNoise(waterSphere.vertices, .02, 1.5);
-    renderMesh(waterTexture, waterSphere.faces, 0x00308b);
-  
+    waterColor = getColor(0x00308b, 0x00308b, 0, 0, waterTexture);
+    renderMesh(waterTexture, waterSphere.faces, waterColor);
+
     camera.position.z = 5;
     // Takes a set of vertices and faces and formats them so three.js can render them
-    function renderMesh(vertices, faces, color){
+    function renderMesh(vertices, faces, colors){
       var geometry = new THREE.Geometry();
       for(var i = 0; i < vertices.length; i++){
         geometry.vertices.push(
@@ -114,45 +151,86 @@
         );
       }
       for (var i = 0; i < faces.length; i++){
-        geometry.faces.push(
-          new THREE.Face3(faces[i][0], faces[i][1], faces[i][2])
+        var face = new THREE.Face3(faces[i][0], faces[i][1], faces[i][2]);
+        var faceColor = new THREE.Color(0);
+        faceColor.add(colors[faces[i][0]]).add(colors[faces[i][1]]).add(colors[faces[i][2]]);
+        faceColor.multiplyScalar(1/3);
+        face.color.set(faceColor);
+        geometry.faces.push(face);
+      }
+      for (var i = 0; i < colors.length; i++){
+        geometry.colors.push(
+          colors[i]
         );
-      }  
+      }
       geometry.computeBoundingSphere();
       geometry.computeFaceNormals();
-      var material = new THREE.MeshLambertMaterial({color: color});
-      material.FlatShading = true;
+      geometry.colorsNeedUpdate = true;
+      var material = new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
       var mesh = new THREE.Mesh(geometry, material);
       scene.add(mesh);
       meshList.push(mesh);
     }
 
     // Creating the gui for changing topology
-    var effectController = {
-			landIntensity: .03,
-      waterIntensity: .02,
+    // var effectController = {
+		// 	landIntensity: .03,
+    //   waterIntensity: .02,
 				
-    };
-    var matChangerLand = function ( ) {
-      console.log("land Changer");
-      for ( var e in effectController ) {
-        for (var i=0;i<landTexture.length; i++) {
-          landTexture[i].x = landTexture[i].x * 2.0;
-          landTexture[i].y = landTexture[i].y * 2.0;
-          landTexture[i].z = landTexture[i].z * 2.0;
-        }
-      }
-      renderMesh(landTexture, landSphere.faces, 0xA0522D);
-    };
-    var matChangerWater = function ( ) {
-      console.log("water Changer");
+    // };
+    // var matChangerLand = function ( ) {
+    //   console.log("land Changer");
+    //   for ( var e in effectController ) {
+    //     for (var i=0;i<landTexture.length; i++) {
+    //       landTexture[i].x = landTexture[i].x * 2.0;
+    //       landTexture[i].y = landTexture[i].y * 2.0;
+    //       landTexture[i].z = landTexture[i].z * 2.0;
+    //     }
+    //   }
+    //   renderMesh(landTexture, landSphere.faces, 0xA0522D);
+    // };
+    // var matChangerWater = function ( ) {
+    //   console.log("water Changer");
       
-    };
-    var gui = new dat.GUI();
-      gui.add( effectController, 'landIntensity', 0, 0.1, 0.01 ).onChange( matChangerLand );
-      gui.add( effectController, 'waterIntensity', 0, 0.1, 0.01 ).onChange( matChangerWater );
+    // };
+    // var gui = new dat.GUI();
+    //   gui.add( effectController, 'landIntensity', 0, 0.1, 0.01 ).onChange( matChangerLand );
+    //   gui.add( effectController, 'waterIntensity', 0, 0.1, 0.01 ).onChange( matChangerWater );
       // matChanger();
   }  
+
+
+  // varying color on planet
+  function getColor(lowColorVal, highColorVal, lowElevation, highElevation, vertices){
+    var colors = [];
+    for (var i = 0; i < vertices.length; i++){
+      //console.log(Math.sqrt(vertices[i].dot(vertices[i])));
+      var elevation = Math.sqrt(vertices[i].dot(vertices[i]));
+      if (elevation < lowElevation){
+        colors.push(new THREE.Color(lowColorVal));
+        //console.log("Low");
+      }
+      else if (elevation < highElevation){
+        var alpha = (elevation - lowElevation)/(highElevation - lowElevation);
+        var color = new THREE.Color(lowColorVal);
+        color.lerp(new THREE.Color(highColorVal), alpha);
+        colors.push(color);
+      }
+      else{
+        colors.push(new THREE.Color(highColorVal));
+        //console.log("high");
+      }
+    }
+    return colors;
+  }
+
+  // adding more planets
+  function addPlanet() {
+    var radius = document.getElementById("radius").value;
+    var intensity = document.getElementById("intensity").value;
+    
+  }
+
   // animate planet
   function animate(){
     requestAnimationFrame(animate);
@@ -164,7 +242,7 @@
     renderer.render(scene, camera);
 
   };
-  
+
   // zooming in and out
   function zoomModel(isZoomOut, scale) {
     if(isZoomOut){
