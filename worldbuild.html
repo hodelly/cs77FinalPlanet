@@ -151,8 +151,8 @@
     // }
     // renderMesh(sphere.vertices, sphere.faces, waterColor);
     camera.position.z = 5;
-    
-  }  
+
+  }
   // Takes a set of vertices and faces and formats them so three.js can render them
   function renderMesh(vertices, faces, colors){
       var geometry = new THREE.Geometry();
@@ -181,7 +181,7 @@
       var mesh = new THREE.Mesh(geometry, material);
       scene.add(mesh);
       meshList.push(mesh);
-    } 
+    }
   // varying color on planet
   function getColor(lowColorVal, highColorVal, lowElevation, highElevation, vertices){
     var colors = [];
@@ -223,7 +223,7 @@
     console.log("Generating Land");
     var landSphere = getSphere(6,radius);
     var landTexture = worleyNoise(layeredNoise(landSphere.vertices, .03, 1.3), intensity, 300);
-    var landColor = getColor(0xA0522D, 0x999999, 2.1, 2.2, landTexture);
+    var landColor = getColor(0xA0522D, 0x999999, radius * 1.05, radius * 1.1 , landTexture);
     // Water construction
     console.log("Generating Water");
     var waterSphere = getSphere(6, radius);
@@ -233,7 +233,7 @@
     renderMesh(waterTexture, waterSphere.faces, waterColor);
     renderMesh(landTexture, landSphere.faces, landColor);
 
-  }  
+  }
 
   // Highlights where meshes meet
   function addBeachColor(landVertices, waterVertices, landColors, beachColor, beachWidth){
