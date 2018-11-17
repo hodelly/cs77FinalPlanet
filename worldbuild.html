@@ -139,7 +139,7 @@
     var landColor = getColor(0xA0522D, 0x999999, 2.1, 2.2, landTexture);
     // Water construction
     console.log("Generating Water");
-    var waterSphere = getSphere(6, 2.07);
+    var waterSphere = getSphere(6, 2);
     var waterTexture = layeredNoise(waterSphere.vertices, .02, 1.5);
     waterColor = getColor(0x00308b, 0x00308b, 0, 0, waterTexture);
     addBeachColor(landTexture, waterTexture, landColor, 0x008800, .01);
