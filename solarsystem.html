@@ -37,37 +37,9 @@
       display: flex;
       flex-direction: column;
     }
-    input {
-      margin: 5px;
-      width: 100px;
-      color: white;
-    }
-    #newP {
-      width:100px;
-    }
-    p {
-      color:white;
-      margin:0px;
-    }
-    .question {
-      display: flex;
-      flex-direction: row
-    }
 	</style>
 </head>
 <body>
-  <div id="newPlanet">
-    <h2>Make a new Planet!</h1>
-    <p>radius:</p>
-    <div class="question">
-      <p>1</p><input placeholder="radius" id="radius" type="range" min="1" max="5"/><p>5</p>
-    </div>
-    <p>topology intensity:</p>
-    <div class="question">
-      <p>0</p><input placeholder="intensity of land topology" id="intensity" type="range" min="0" max=".5" step=".1"/><p>0.5</p>
-    </div>
-      <button id="newP" onclick="addPlanet()">create</button>
-  </div>
   <div id="buttons">
     <button id="zoomB" type="button" class="zoom_b" onclick="zoomModel(true, 1.2)">+</button>
     <button id="zoomB" type="button" class="zoom_b" onclick="zoomModel(false, 1.2)">-</button>
@@ -77,8 +49,7 @@
   <script src="js/makeSphere.js"></script>
   <script src="js/editSurface.js"></script>
   <script src="js/controls.js"></script>
-  <script src='js/gui.js'></script>
-  <script src='js/noise.js'></script>
+
 
   <script>
 
@@ -104,47 +75,111 @@
     scene.add(aLight);
 
     var pLight = new THREE.PointLight(0xffffff, 1, 0, 2);
-    pLight.position.set(0, 50, 0);
+    pLight.position.set(0, 200, 0);
     scene.add(pLight);
     var pLight2 = new THREE.PointLight(0xffffff, 1, 0, 2);
-    pLight2.position.set(0, -50, 0);
+    pLight2.position.set(0, -200, 0);
     scene.add(pLight2);
     var pLight3 = new THREE.PointLight(0xffffff, 1, 0, 2);
-    pLight3.position.set(-50, 0, 0);
+    pLight3.position.set(-200, 0, 0);
     scene.add(pLight3);
     var pLight4 = new THREE.PointLight(0xffffff, 1, 0, 2);
-    pLight4.position.set(50, 0, 0);
+    pLight4.position.set(200, 0, 0);
     scene.add(pLight4);
     var pLight5 = new THREE.PointLight(0xffffff, 1, 0, 2);
-    pLight5.position.set(0, 0, 50);
+    pLight5.position.set(0, 0, 200);
     scene.add(pLight5);
     var pLight6 = new THREE.PointLight(0xffffff, 1, 0, 2);
-    pLight6.position.set(0, 0, -50);
+    pLight6.position.set(0, 0, -200);
     scene.add(pLight6);
 
+    // sun construction
+    var sun = getSphere(6,4);
+    var sunTexture = layeredNoise(sun.vertices, .03, 1.3);
+    var sunColor = getColor(0xf6e179, 0xf6e179, 2.1, 2.2, sunTexture);
+    renderMesh(sunTexture, sun.faces, sunColor, true);
 
-    // Planet Geometry
-    var geometry = new THREE.Geometry();
-
+ 
+    // PLANET 1 CONSTRUCTION
     // Land Construction
-    console.log("Generating Land");
-    var landSphere = getSphere(6,2);
-    var landTexture = worleyNoise(layeredValueNoise(layeredNoise(landSphere.vertices, .02, 1.3), 7, .05, 1.2), .2, 300);
-    var landColor = getColor(0xA0522D, 0x999999, 2.1, 2.2, landTexture);
-
+    var landSphere = getSphere(6,1.2);
+    var landTexture = worleyNoise(layeredNoise(landSphere.vertices, .03, 1.3), .1, 300);
+    var landColor = getColor(0x00f59b, 0x999999, 2.1, 2.2, landTexture);
+    for (var i=0; i<landSphere.vertices.length; i++) {
+      landTexture[i].x = landTexture[i].x+14;
+    }
     // Water construction
-    console.log("Generating Water");
-    var waterSphere = getSphere(6,2);
+    var waterSphere = getSphere(6, 1.2);
     var waterTexture = layeredNoise(waterSphere.vertices, .02, 1.5);
-    waterColor = getColor(0x00308b, 0x00308b, 0, 0, waterTexture);
-    addBeachColor(landTexture, waterTexture, landColor, 0xc49618, .02);
-    renderMesh(waterTexture, waterSphere.faces, waterColor);
-    renderMesh(landTexture, landSphere.faces, landColor);
-    camera.position.z = 5;
+    waterColor = getColor(0xff7070, 0xff7070, 0, 0, waterTexture);
+    for (var i=0; i<waterSphere.vertices.length; i++) {
+      waterTexture[i].x = waterTexture[i].x+14;
+    }
+    addBeachColor(landTexture, waterTexture, landColor, 0x008800, .01);
+    renderMesh(waterTexture, waterSphere.faces, waterColor, false);
+    renderMesh(landTexture, landSphere.faces, landColor, false);
 
-  }
+    // PLANET 2 CONSTRUCTION
+    // Land Construction
+    var landSphere1 = getSphere(6,1.9);
+    var landTexture1 = worleyNoise(layeredNoise(landSphere1.vertices, .03, 1.3), .5, 300);
+    var landColor1 = getColor(0xffff42, 0x999999, 2.1, 2.2, landTexture1);
+    for (var i=0; i<landSphere1.vertices.length; i++) {
+      landTexture1[i].x = landTexture1[i].x-8;
+    }
+    // Water construction
+    var waterSphere1 = getSphere(6, 1.9);
+    var waterTexture1 = layeredNoise(waterSphere1.vertices, .02, 1.5);
+    waterColor1 = getColor(0x0de797, 0x0de797, 0, 0, waterTexture1);
+    for (var i=0; i<waterSphere1.vertices.length; i++) {
+      waterTexture1[i].x = waterTexture1[i].x-8;
+    }
+    addBeachColor(landTexture1, waterTexture1, landColor1, 0x008800, .01);
+    renderMesh(waterTexture1, waterSphere1.faces, waterColor1, false);
+    renderMesh(landTexture1, landSphere1.faces, landColor1, false);
+
+    // PLANET 3 CONSTRUCTION
+    // Land Construction
+    var landSphere2 = getSphere(6,2.5);
+    var landTexture2 = worleyNoise(layeredNoise(landSphere2.vertices, .03, 1.3), .3, 300);
+    var landColor2 = getColor(0xA0522D, 0x999999, 2.1, 2.2, landTexture2);
+    for (var i=0; i<landSphere2.vertices.length; i++) {
+      landTexture2[i].x = landTexture2[i].x+22;
+    }
+    // Water construction
+    var waterSphere2 = getSphere(6, 2.5);
+    var waterTexture2 = layeredNoise(waterSphere2.vertices, .02, 1.5);
+    waterColor2 = getColor(0x00308b, 0x00308b, 0, 0, waterTexture2);
+    for (var i=0; i<waterSphere2.vertices.length; i++) {
+      waterTexture2[i].x = waterTexture2[i].x+22;
+    }
+    addBeachColor(landTexture2, waterTexture2, landColor2, 0x008800, .01);
+    renderMesh(waterTexture2, waterSphere2.faces, waterColor2, false);
+    renderMesh(landTexture2, landSphere2.faces, landColor2, false);
+ 
+     // PLANET 4 CONSTRUCTION
+    // Land Construction
+    var landSphere3 = getSphere(6,4);
+    var landTexture3 = worleyNoise(layeredNoise(landSphere3.vertices, .03, 1.3), .1, 300);
+    var landColor3 = getColor(0xffff42, 0x999999, 2.1, 2.2, landTexture3);
+    for (var i=0; i<landSphere3.vertices.length; i++) {
+      landTexture3[i].x = landTexture3[i].x-35;
+    }
+    // Water construction
+    var waterSphere3 = getSphere(6, 4);
+    var waterTexture3 = layeredNoise(waterSphere3.vertices, .02, 1.5);
+    waterColor3 = getColor(0xad66ff, 0xad66ff, 0, 0, waterTexture3);
+    for (var i=0; i<waterSphere3.vertices.length; i++) {
+      waterTexture3[i].x = waterTexture3[i].x-35;
+    }
+    addBeachColor(landTexture3, waterTexture3, landColor3, 0x008800, .01);
+    renderMesh(waterTexture3, waterSphere3.faces, waterColor3, false);
+    renderMesh(landTexture3, landSphere3.faces, landColor3, false);
+    camera.position.z = 20;
+    
+  }  
   // Takes a set of vertices and faces and formats them so three.js can render them
-  function renderMesh(vertices, faces, colors){
+  function renderMesh(vertices, faces, colors, sun){
       var geometry = new THREE.Geometry();
       for(var i = 0; i < vertices.length; i++){
         geometry.vertices.push(
@@ -168,19 +203,21 @@
       geometry.computeFaceNormals();
       geometry.colorsNeedUpdate = true;
       var material = new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
+      if (sun) {
+        material.emissive = new THREE.Color(0x11100e);
+        material.emissiveIntensity = 0;
+      }
       var mesh = new THREE.Mesh(geometry, material);
       scene.add(mesh);
       meshList.push(mesh);
-    }
+    } 
   // varying color on planet
   function getColor(lowColorVal, highColorVal, lowElevation, highElevation, vertices){
     var colors = [];
     for (var i = 0; i < vertices.length; i++){
-      //console.log(Math.sqrt(vertices[i].dot(vertices[i])));
       var elevation = Math.sqrt(vertices[i].dot(vertices[i]));
       if (elevation < lowElevation){
         colors.push(new THREE.Color(lowColorVal));
-        //console.log("Low");
       }
       else if (elevation < highElevation){
         var alpha = (elevation - lowElevation)/(highElevation - lowElevation);
@@ -190,38 +227,9 @@
       }
       else{
         colors.push(new THREE.Color(highColorVal));
-        //console.log("high");
       }
     }
     return colors;
-  }
-
-  // replace planet
-  function addPlanet() {
-    var radius = document.getElementById("radius").value;
-    var intensity = document.getElementById("intensity").value;
-    scene.remove(meshList[0]);
-    scene.remove(meshList[1]);
-    meshList=[];
-
-    console.log(radius, intensity);
-    // Planet Geometry
-    var geometry = new THREE.Geometry();
-    // getSphere(surface divisions, radius of sphere);
-
-    // Land Construction
-    console.log("Generating Land");
-    var landSphere = getSphere(6,radius);
-    var landTexture = worleyNoise(layeredNoise(landSphere.vertices, .03, 1.3), intensity, 300);
-    var landColor = getColor(0xA0522D, 0x999999, radius * 1.05, radius * 1.1 , landTexture);
-    // Water construction
-    console.log("Generating Water");
-    var waterSphere = getSphere(6, radius);
-    var waterTexture = layeredNoise(waterSphere.vertices, .02, 1.5);
-    waterColor = getColor(0x00308b, 0x00308b, 0, 0, waterTexture);
-    //addBeachColor(landTexture, waterTexture, landColor, 0xc49618, .01);
-    renderMesh(waterTexture, waterSphere.faces, waterColor);
-    renderMesh(landTexture, landSphere.faces, landColor);
   }
 
   // Highlights where meshes meet
@@ -233,7 +241,7 @@
       var landElevation = Math.sqrt(landVertices[i].dot(landVertices[i]));
       var waterElevation = Math.sqrt(waterVertices[i].dot(waterVertices[i]));
       var alpha = Math.abs((landElevation - waterElevation) / beachWidth);
-      if(alpha < 1){
+      if(alpha > 0 && alpha < 1){
         landColors[i].lerp(new THREE.Color(beachColor), alpha);
       }
     }
@@ -242,15 +250,19 @@
   // animate planet
   function animate(){
     requestAnimationFrame(animate);
-    for(var i = 0; i < meshList.length; i++){
-      // meshList[i].rotation.x += .003;
-      // meshList[i].rotation.y += .003;
-    }
+    meshList[0].rotation.x += .005;
+    meshList[1].rotation.y += .017;
+    meshList[2].rotation.y += .017;
+    meshList[3].rotation.y -= .011;
+    meshList[4].rotation.y -= .011;
+    meshList[5].rotation.y -= .012;
+    meshList[6].rotation.y -= .012;
+    meshList[7].rotation.y -= .008;
+    meshList[8].rotation.y -= .008;
     controls.update();
     renderer.render(scene, camera);
+
   };
-
-
 
   // zooming in and out
   function zoomModel(isZoomOut, scale) {
