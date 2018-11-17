@@ -170,35 +170,8 @@
       var mesh = new THREE.Mesh(geometry, material);
       scene.add(mesh);
       meshList.push(mesh);
-    }
-
-    // Creating the gui for changing topology
-    // var effectController = {
-		// 	landIntensity: .03,
-    //   waterIntensity: .02,
-				
-    // };
-    // var matChangerLand = function ( ) {
-    //   console.log("land Changer");
-    //   for ( var e in effectController ) {
-    //     for (var i=0;i<landTexture.length; i++) {
-    //       landTexture[i].x = landTexture[i].x * 2.0;
-    //       landTexture[i].y = landTexture[i].y * 2.0;
-    //       landTexture[i].z = landTexture[i].z * 2.0;
-    //     }
-    //   }
-    //   renderMesh(landTexture, landSphere.faces, 0xA0522D);
-    // };
-    // var matChangerWater = function ( ) {
-    //   console.log("water Changer");
-      
-    // };
-    // var gui = new dat.GUI();
-    //   gui.add( effectController, 'landIntensity', 0, 0.1, 0.01 ).onChange( matChangerLand );
-    //   gui.add( effectController, 'waterIntensity', 0, 0.1, 0.01 ).onChange( matChangerWater );
-      // matChanger();
+    } 
   }  
-
 
   // varying color on planet
   function getColor(lowColorVal, highColorVal, lowElevation, highElevation, vertices){
