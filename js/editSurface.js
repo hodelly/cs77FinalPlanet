@@ -44,7 +44,7 @@ function worleyNoise(vertices, intensity, numPoints){
     }
     var arcLength = 2*Math.asin(shortestDist/2)/(Math.PI/2); // Arc length in range [0,1] (but probably pretty small)
     //newVertices.push(vertices[i].multiply(Math.pow(1 + intensity * arcLength, 1.1)));
-    newVertices.push(vertices[i].multiply((2+Math.log(1/Math.E + intensity * arcLength)) - .03));
+    newVertices.push(vertices[i].multiply(2+Math.log(1/Math.E + intensity * arcLength)-.03));
   }
   return newVertices;
 }
