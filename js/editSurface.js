@@ -39,7 +39,9 @@ function layeredNoise(vertices, intensity, decay){
   var newVertices = [];
   for(i = 0; i < randIco.vertices.length; i++){
     newVertices.push(randIco.vertices[i].multiply(
-      Math.sqrt(vertices[i].dot(vertices[i])) / Math.sqrt(unitIco.vertices[i].dot(unitIco.vertices[i]))));
+      Math.sqrt(vertices[i].dot(vertices[i])) / Math.sqrt(unitIco.vertices[i].dot(unitIco.vertices[i])))
+    );
+  }
   return newVertices;
 }
 
