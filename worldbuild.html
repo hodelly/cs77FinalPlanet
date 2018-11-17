@@ -95,15 +95,19 @@
     // Land Construction
     console.log("Generating Land");
     var landSphere = getSphere(6,2);
-    var landTexture = worleyNoise(layeredNoise(landSphere.vertices, .03, 1.3), .2, 300);
-    var landColor = getColor(0xA0522D, 0x999999, 2.1, 2.2, landTexture);
-    renderMesh(landTexture, landSphere.faces, landColor);
+    var landTexture = worleyNoise(layeredNoise(landSphere.vertices, .03, 1.3), .25, 300);
+    var landColor = getColor(0xA0522D, 0x999999, 2.15, 2.25, landTexture);
+
 
     // Water construction
     console.log("Generating Water");
-    var waterSphere = getSphere(6, 2.07);
+    var waterSphere = getSphere(6, 2.08);
     var waterTexture = layeredNoise(waterSphere.vertices, .02, 1.5);
-    waterColor = getColor(0x00308b, 0x00308b, 0, 0, waterTexture);
+    var waterColor = getColor(0x000000, 0x00308b, 1.6, 2, landTexture);
+
+    addBeachColor(landTexture, waterTexture, landColor, 0x008800, .01);
+
+    renderMesh(landTexture, landSphere.faces, landColor);
     renderMesh(waterTexture, waterSphere.faces, waterColor);
 
     camera.position.z = 5;
@@ -137,6 +141,7 @@
       meshList.push(mesh);
     }
 
+    // Calculates face colors based on mesh topology
     function getColor(lowColorVal, highColorVal, lowElevation, highElevation, vertices){
       var colors = [];
       for (var i = 0; i < vertices.length; i++){
@@ -158,6 +163,20 @@
         }
       }
       return colors;
+    }
+  }
+
+  function addBeachColor(landVertices, waterVertices, landColors, beachColor, beachWidth){
+    if(landVertices.length != waterVertices.length){
+      return landColors;
+    }
+    for(var i = 0; i < landVertices.length; i++){
+      var landElevation = Math.sqrt(landVertices[i].dot(landVertices[i]));
+      var waterElevation = Math.sqrt(waterVertices[i].dot(waterVertices[i]));
+      var alpha = Math.abs((landElevation - waterElevation) / beachWidth);
+      if(alpha > 0 && alpha < 1){
+        landColors[i].lerp(new THREE.Color(beachColor), alpha);
+      }
     }
   }
 
