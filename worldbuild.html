@@ -78,10 +78,7 @@
   <script src="js/editSurface.js"></script>
   <script src="js/controls.js"></script>
   <script src='js/gui.js'></script>
-
-
-
-
+  <script src='js/noise.js'></script>
 
   <script>
 
@@ -128,28 +125,21 @@
 
     // Planet Geometry
     var geometry = new THREE.Geometry();
-    // getSphere(surface divisions, radius of sphere);
 
     // Land Construction
-
-
     console.log("Generating Land");
     var landSphere = getSphere(6,2);
-    var landTexture = worleyNoise(layeredNoise(landSphere.vertices, .03, 1.3), .2, 300);
+    var landTexture = worleyNoise(layeredValueNoise(layeredNoise(landSphere.vertices, .02, 1.3), 7, .05, 1.2), .2, 300);
     var landColor = getColor(0xA0522D, 0x999999, 2.1, 2.2, landTexture);
+
     // Water construction
     console.log("Generating Water");
-    var waterSphere = getSphere(6, 2);
+    var waterSphere = getSphere(6,2);
     var waterTexture = layeredNoise(waterSphere.vertices, .02, 1.5);
     waterColor = getColor(0x00308b, 0x00308b, 0, 0, waterTexture);
-    addBeachColor(landTexture, waterTexture, landColor, 0x008800, .01);
+    addBeachColor(landTexture, waterTexture, landColor, 0xc49618, .02);
     renderMesh(waterTexture, waterSphere.faces, waterColor);
     renderMesh(landTexture, landSphere.faces, landColor);
-    // var sphere = getSphere(6,3);
-    // for (var i=0; i<sphere.vertices.length; i++) {
-    //   sphere.vertices[i].x = sphere.vertices[i].x+7;
-    // }
-    // renderMesh(sphere.vertices, sphere.faces, waterColor);
     camera.position.z = 5;
 
   }
@@ -229,10 +219,9 @@
     var waterSphere = getSphere(6, radius);
     var waterTexture = layeredNoise(waterSphere.vertices, .02, 1.5);
     waterColor = getColor(0x00308b, 0x00308b, 0, 0, waterTexture);
-    addBeachColor(landTexture, waterTexture, landColor, 0x008800, .01);
+    //addBeachColor(landTexture, waterTexture, landColor, 0xc49618, .01);
     renderMesh(waterTexture, waterSphere.faces, waterColor);
     renderMesh(landTexture, landSphere.faces, landColor);
-
   }
 
   // Highlights where meshes meet
@@ -244,7 +233,7 @@
       var landElevation = Math.sqrt(landVertices[i].dot(landVertices[i]));
       var waterElevation = Math.sqrt(waterVertices[i].dot(waterVertices[i]));
       var alpha = Math.abs((landElevation - waterElevation) / beachWidth);
-      if(alpha > 0 && alpha < 1){
+      if(alpha < 1){
         landColors[i].lerp(new THREE.Color(beachColor), alpha);
       }
     }
@@ -259,8 +248,9 @@
     }
     controls.update();
     renderer.render(scene, camera);
-
   };
+
+
 
   // zooming in and out
   function zoomModel(isZoomOut, scale) {

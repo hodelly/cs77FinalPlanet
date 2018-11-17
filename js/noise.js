@@ -64,8 +64,14 @@ function applyValueNoise(vertices, intensity, resolution){
   return newVertices;
 }
 
-function layeredValueNoise(vertices, intensity, decay){
-
+function layeredValueNoise(vertices, layers, intensity, decay){
+  var newVertices = vertices;
+  var currIntensity = intensity;
+  for (var i = 0; i < layers; i++){
+    newVertices = applyValueNoise(newVertices, currIntensity, 2*(i+1));
+    currIntensity /= decay;
+  }
+  return newVertices;
 }
 
 function initPerlinNoise(resolution){
@@ -162,4 +168,24 @@ function vectorHermite(p0, p1, v0, v1, t){
     hermite(p0.y, p1.y, v0.y, v1.y, t),
     hermite(p0.z, p1.z, v0.z, v1.z, t)
   );
+}
+
+function applyPerlinNoise(vertices, intensity, resolution){
+  var newVertices = [];
+  var noise = initPerlinNoise(resolution);
+  for(var i = 0; i < vertices.length; i++){
+    var unit = vertices[i].unit();
+    newVertices.push(vertices[i].multiply(1 + intensity * getPerlinNoise(noise, unit.x, unit.y, unit.z)));
+  }
+  return newVertices;
+}
+
+function layeredPerlinNoise(vertices, layers, intensity, decay){
+  var newVertices = vertices;
+  var currIntensity = intensity;
+  for (var i = 0; i < layers; i++){
+    newVertices = applyPerlinNoise(newVertices, currIntensity, 2*(i+1));
+    currIntensity /= decay;
+  }
+  return newVertices;
 }
